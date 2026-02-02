@@ -1,8 +1,5 @@
-﻿using System;
-using Code.Gameplay;
-using Code.Gameplay.Cameras.Provider;
-using Code.Gameplay.Common.Time;
-using Code.Gameplay.Input.Service;
+﻿using Code.Gameplay;
+using Code.Infrastructure.Systems;
 using UnityEngine;
 using Zenject;
 
@@ -12,32 +9,26 @@ namespace Code.Infrastructure
     {
         private BattleFeature _battleFeature;
 
-        private GameContext _gameContext;
-        private ITimeService _time;
-        private IInputService _input;
-        private ICameraProvider _cameraProvider;
+        private ISystemFactory _systemFactory;
 
         [Inject]
-        private void Construct(GameContext gameContext, ITimeService time, IInputService input, ICameraProvider cameraProvider)
+        private void Construct(ISystemFactory systemFactory)
         {
-            _gameContext = gameContext;
-            _time = time;
-            _input = input;
-            _cameraProvider = cameraProvider;
+            _systemFactory = systemFactory;
         }
 
         private void Start()
         {
-            _battleFeature = new BattleFeature(_gameContext, _time, _input, _cameraProvider);
+            _battleFeature = _systemFactory.Create<BattleFeature>();
             _battleFeature.Initialize();
         }
-        
+
         private void Update()
         {
             _battleFeature.Execute();
             _battleFeature.Cleanup();
         }
-        
+
         private void OnDestroy()
         {
             _battleFeature.TearDown();
